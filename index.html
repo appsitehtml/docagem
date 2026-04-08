@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eletronit - Dashboard de Docagem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-checkbox:checked {
+            background-color: #eab308; /* yellow-500 */
+            border-color: #eab308;
+        }
+        .progress-transition {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        
+        .elevation-row {
+            width: 100%;
+            height: 120px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-20">
+
+    <!-- Header / Branding -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-900 p-2 rounded-lg">
+                    <i data-lucide="zap" class="text-yellow-400 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight uppercase">Eletronit <span class="text-slate-500 font-medium lowercase italic">Serviços Elétricos</span></h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Relatório de Acompanhamento</p>
+                </div>
+            </div>
+            
+            <!-- Informações Permanentes do Orçamento -->
+            <div class="flex-1 border-l border-slate-100 pl-6 hidden lg:block">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-0.5">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Para: <span class="text-slate-800">CMM</span></p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-right">Ref: <span class="text-slate-800">RELF. 0068/2026</span></p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Att: <span class="text-slate-800">Sra. Iara Evangelista</span></p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-right">Local: <span class="text-slate-800">Estaleiro São José</span></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <button onclick="resetAllData()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors uppercase tracking-widest">
+                    <i data-lucide="trash-2" class="w-3 h-3"></i> Limpar Progresso
+                </button>
+                <div class="text-right">
+                    <p class="font-black italic text-slate-800 tracking-tighter text-lg leading-tight">S/V VELOCITY</p>
+                    <p class="text-[10px] text-yellow-600 font-bold uppercase tracking-widest">Docagem Março/2026</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+        
+        <!-- Dashboard Principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Overall Progress -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col items-center justify-center">
+                <div class="flex justify-between w-full mb-4 px-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conclusão Total</h3>
+                    <div id="save-indicator" class="text-[9px] font-black text-green-500 opacity-0 transition-opacity flex items-center gap-1">
+                        <i data-lucide="save" class="w-2.5 h-2.5"></i> SALVO
+                    </div>
+                </div>
+                <div class="relative w-40 h-40">
+                    <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                        <path class="text-slate-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path id="progress-circle" class="text-yellow-500 transition-all duration-700 ease-out" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="percent-text" class="text-4xl font-black text-slate-800 tracking-tighter">0%</span>
+                        <span id="task-counter-small" class="text-[10px] font-bold text-slate-400 uppercase">0/0 Itens</span>
+                    </div>
+                </div>
+                <div id="status-badge" class="mt-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500">
+                    Aguardando Dados
+                </div>
+            </div>
+
+            <!-- Main S-Curve Chart -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 col-span-1 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Curva de Elevação Geral</h3>
+                    <div class="flex gap-4 text-[10px] font-bold uppercase">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Real</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-200"></span> Previsto</span>
+                    </div>
+                </div>
+                <div class="h-[180px] w-full">
+                    <canvas id="elevationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cronograma -->
+        <div class="bg-slate-900 p-6 rounded-3xl shadow-xl mb-8 text-white">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-2">Início de Docagem</p>
+                    <input type="date" id="start-date" value="2026-03-01" onchange="updateCalculations()" class="bg-slate-800 border-none rounded-xl p-3 w-full font-bold text-yellow-500 cursor-pointer">
+                </div>
+                <div class="flex flex-col items-center justify-center border-x border-slate-800 px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1">Performance Temporal</p>
+                    <p id="time-status" class="text-lg font-black italic tracking-tighter">---</p>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div id="time-progress-bar" class="bg-yellow-500 h-full w-0 progress-transition"></div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-2">Previsão de Término</p>
+                    <input type="date" id="end-date" value="2026-03-31" onchange="updateCalculations()" class="bg-slate-800 border-none rounded-xl p-3 w-full font-bold text-yellow-500 cursor-pointer text-right">
+                </div>
+            </div>
+            <div class="flex justify-between mt-4 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                <span id="days-elapsed">0 Dias Passados</span>
+                <span id="days-remaining">0 Dias Restantes</span>
+            </div>
+        </div>
+
+        <!-- Section de Serviços -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-yellow-500"></i>
+                    Checklist de Execução Técnica
+                </h2>
+                <div id="task-counter" class="text-xs font-black text-slate-500 bg-white border border-slate-200 px-4 py-2 rounded-2xl uppercase">
+                    0 / 0 Subtarefas
+                </div>
+            </div>
+
+            <div id="tasks-container" class="divide-y divide-slate-100">
+                <!-- Gerado via JavaScript -->
+            </div>
+        </div>
+
+        <footer class="mt-12 text-center text-slate-400 text-xs pb-10">
+            <p class="font-bold uppercase tracking-widest mb-1">Eletronit Serviços Elétricos LTDA</p>
+            <p>Niterói - Rio de Janeiro | ORÇAMENTO RELF. 0068/2026</p>
+        </footer>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'eletronit_dashboard_data_v1_fixed';
+
+        const servicesData = [
+            { id: "meg", title: "Megagem dos motores e geradores", items: ["Abertura da caixa de ligação", "Desligamento dos cabos de força", "Megagem", "Ligação e fechamento", "Teste em funcionamento", "Relatório técnico"] },
+            { id: "vac", title: "Manutenção Driver Vacon / Thruster", items: ["Remoção do Driver", "Desmontagem", "Inspeção", "Limpeza dos coolers", "Teste operacional", "Troca da placa de controle"] },
+            { id: "lem", title: "Motores Maquina Leme (Rolamentos)", items: ["Remoção", "Desmontagem", "Limpeza estator", "Troca rolamento", "Balanceamento", "Revitalização bobina", "Teste em funcionamento"] },
+            { id: "qep", title: "Reaperto QEP", items: ["Bornes e barramentos", "Substituição de componentes"] },
+            { id: "ilu", title: "Iluminação Interna/Externa", items: ["Troca para LED", "Substituição cabos luminárias", "Teste em funcionamento"] },
+            { id: "far", title: "Revisão Farol de Busca", items: ["Revisão holofotes", "Troca peças", "Lubrificação eixo", "Vedação", "Pintura", "Instalação", "Teste"] },
+            { id: "bat", title: "Troca Baterias (Laudo)", items: ["DC Máquina", "DC Passadiço", "Inspeção", "Teste de carga"] },
+            { id: "pan", title: "Reaperto Painel MCA e MCP", items: ["Reaperto bornes", "Reparo cabos arranque", "Aplicação termo retrátil", "Componentes CMM"] },
+            { id: "mas", title: "Amarração Cabos Mastro", items: ["Limpeza antenas", "Abraçadeiras", "Inspeção técnica"] },
+            { id: "com", title: "Teste Intercom", items: ["Limpeza", "Troca cabo acionador", "Corneta polpa", "Corneta convés"] },
+            { id: "arr", title: "Motores de Arranque MCA/MCP", items: ["Remoção", "Bancada", "Revitalização", "Jateamento carcaça", "Teste bancada"] },
+            { id: "ger", title: "Geradores BB, BE e Central", items: ["Remoção", "Troca Rolamento", "Limpeza Eletrosolver", "Revitalização", "Rebobinamento Excitatriz", "Placa de Diodos", "Secagem estufa", "Montagem e Teste"] },
+            { id: "bow", title: "Motor Bow Thruster 1 e 2", items: ["Remoção", "Substituição rolamento", "Eletrosolver", "Teste final"] },
+            { id: "exa", title: "Exaustores Banheiro/Cozinha", items: ["Desmontagem", "Rolamento", "Revitalização", "Teste"] },
+            { id: "mob", title: "Mobilização IA Altave / Internet", items: ["Rack", "Passagem CAT6", "MCT Redondo", "Comissionamento"] }
+        ];
+
+        let elevationChart;
+        let taskCharts = {};
+
+        function initMainChart() {
+            const ctx = document.getElementById('elevationChart').getContext('2d');
+            elevationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['S0', 'S1', 'S2', 'S3', 'S4', 'S5'],
+                    datasets: [
+                        {
+                            label: 'Real',
+                            data: [0, 0, 0, 0, 0, 0],
+                            borderColor: '#eab308',
+                            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#eab308'
+                        },
+                        {
+                            label: 'Previsto',
+                            data: [0, 20, 45, 75, 90, 100],
+                            borderColor: '#e2e8f0',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { display: false }, grid: { display: false, drawBorder: false } },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createTaskElevationChart(canvasId, labels) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const chartLabels = ['Início', ...labels];
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: new Array(chartLabels.length).fill(0),
+                        borderColor: '#eab308',
+                        backgroundColor: 'rgba(234, 179, 8, 0.05)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#eab308',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { size: 10, weight: 'bold' },
+                            bodyFont: { size: 10 },
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: (context) => `Progresso: ${context.parsed.y}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            display: true, 
+                            grid: { display: true, color: '#f1f5f9' },
+                            ticks: { 
+                                color: '#94a3b8', 
+                                font: { size: 8, weight: '600' },
+                                autoSkip: false,
+                                maxRotation: 15,
+                                minRotation: 0
+                            } 
+                        },
+                        y: { 
+                            display: true, 
+                            min: 0, 
+                            max: 100, 
+                            ticks: { 
+                                stepSize: 50,
+                                color: '#cbd5e1',
+                                font: { size: 9 }
+                            }, 
+                            grid: { color: '#f8fafc' } 
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            servicesData.forEach((service, sIndex) => {
+                const section = document.createElement('div');
+                section.className = "p-6 hover:bg-slate-50/50 transition-all group border-b border-slate-100 last:border-0";
+                
+                const itemsHtml = service.items.map((item, iIndex) => `
+                    <div class="flex items-start gap-3 py-1.5">
+                        <input type="checkbox" id="check-${sIndex}-${iIndex}" data-group="${sIndex}" onchange="updateCalculations()"
+                               class="custom-checkbox mt-0.5 w-5 h-5 rounded border-slate-300 text-yellow-500 focus:ring-yellow-400 cursor-pointer transition-all">
+                        <label for="check-${sIndex}-${iIndex}" class="text-xs text-slate-500 font-semibold hover:text-slate-900 cursor-pointer transition-colors leading-tight">
+                            ${item}
+                        </label>
+                    </div>
+                `).join('');
+
+                section.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="flex-1">
+                                <h3 class="font-black text-slate-800 uppercase tracking-tighter text-lg flex items-center gap-3">
+                                    <span class="w-1.5 h-6 bg-slate-900 group-hover:bg-yellow-500 rounded-full transition-colors"></span>
+                                    ${service.title}
+                                </h3>
+                                <div id="group-val-${sIndex}" class="text-[10px] font-black text-yellow-600 uppercase mt-1 tracking-widest">0% CONCLUÍDO</div>
+                            </div>
+                            <div class="w-full md:w-48 bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-50 shadow-inner">
+                                <div id="group-bar-${sIndex}" class="bg-yellow-500 h-full w-0 progress-transition shadow-[0_0_8px_rgba(234,179,8,0.3)]"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                            ${itemsHtml}
+                        </div>
+                        <div class="mt-2">
+                             <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> Curva de Execução do Setor
+                             </div>
+                             <div class="elevation-row bg-white border border-slate-100 rounded-2xl p-4 shadow-sm group-hover:border-yellow-200 transition-colors relative">
+                                <canvas id="spark-${sIndex}"></canvas>
+                             </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(section);
+                
+                setTimeout(() => {
+                    taskCharts[sIndex] = createTaskElevationChart(`spark-${sIndex}`, service.items);
+                }, 0);
+            });
+            lucide.createIcons();
+        }
+
+        // --- LÓGICA DE PERSISTÊNCIA ---
+
+        function saveData() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const states = Array.from(checkboxes).map(cb => cb.checked);
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            const payload = {
+                states,
+                startDate,
+                endDate
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) {
+                indicator.style.opacity = '1';
+                setTimeout(() => { indicator.style.opacity = '0'; }, 1500);
+            }
+        }
+
+        function loadData() {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) return;
+
+            try {
+                const data = JSON.parse(rawData);
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                
+                if (data.states && data.states.length === checkboxes.length) {
+                    checkboxes.forEach((cb, i) => {
+                        cb.checked = data.states[i];
+                    });
+                }
+
+                if (data.startDate) document.getElementById('start-date').value = data.startDate;
+                if (data.endDate) document.getElementById('end-date').value = data.endDate;
+
+            } catch (e) {
+                console.error("Erro ao carregar dados", e);
+            }
+        }
+
+        function resetAllData() {
+            if (confirm("Deseja realmente apagar todo o progresso?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function updateCalculations() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+            
+            servicesData.forEach((service, sIndex) => {
+                const groupCheckboxes = document.querySelectorAll(`input[type="checkbox"][data-group="${sIndex}"]`);
+                const groupCheckedCount = Array.from(groupCheckboxes).filter(cb => cb.checked).length;
+                const groupPercent = groupCheckboxes.length > 0 ? Math.round((groupCheckedCount / groupCheckboxes.length) * 100) : 0;
+                
+                document.getElementById(`group-bar-${sIndex}`).style.width = `${groupPercent}%`;
+                document.getElementById(`group-val-${sIndex}`).innerText = `${groupPercent}% CONCLUÍDO`;
+                
+                if (taskCharts[sIndex]) {
+                    const sparkData = [0]; 
+                    let currentAccumulated = 0;
+                    const stepValue = 100 / groupCheckboxes.length;
+
+                    groupCheckboxes.forEach((cb) => {
+                        if(cb.checked) currentAccumulated += stepValue;
+                        sparkData.push(Math.min(Math.round(currentAccumulated), 100));
+                    });
+
+                    taskCharts[sIndex].data.datasets[0].data = sparkData;
+                    taskCharts[sIndex].update('none');
+                }
+            });
+
+            const totalTasks = checkboxes.length;
+            const completedTasks = checked.length;
+            const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            document.getElementById('progress-circle').style.strokeDasharray = `${percent}, 100`;
+            document.getElementById('percent-text').innerText = `${percent}%`;
+            document.getElementById('task-counter').innerText = `${completedTasks} / ${totalTasks} Subtarefas`;
+            document.getElementById('task-counter-small').innerText = `${completedTasks}/${totalTasks} Itens`;
+
+            const elevationData = [0, percent * 0.2, percent * 0.5, percent * 0.8, percent * 0.95, percent];
+            elevationChart.data.datasets[0].data = elevationData;
+            elevationChart.update();
+
+            const startStr = document.getElementById('start-date').value;
+            const endStr = document.getElementById('end-date').value;
+            
+            if(startStr && endStr) {
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                const today = new Date();
+                
+                const totalDuration = end - start;
+                const elapsed = today - start;
+                
+                let timePercent = totalDuration > 0 ? Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100) : 0;
+
+                document.getElementById('time-progress-bar').style.width = `${timePercent}%`;
+                document.getElementById('days-elapsed').innerText = `${Math.max(Math.ceil(elapsed/(1000*60*60*24)), 0)} Dias Passados`;
+                document.getElementById('days-remaining').innerText = `${Math.max(Math.ceil((end-today)/(1000*60*60*24)), 0)} Dias Restantes`;
+
+                const statusBadge = document.getElementById('status-badge');
+                const timeStatusText = document.getElementById('time-status');
+
+                if (percent === 0) {
+                    statusBadge.innerText = "STANDBY";
+                    statusBadge.className = "mt-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-400";
+                    timeStatusText.innerText = "AGUARDANDO INÍCIO";
+                    timeStatusText.className = "text-lg font-black italic tracking-tighter text-slate-500";
+                } else if (percent < 100) {
+                    statusBadge.innerText = "EM EXECUÇÃO";
+                    statusBadge.className = "mt-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-yellow-400 text-slate-900 shadow-lg shadow-yellow-400/20";
+                    
+                    const progressoMinimoEsperado = timePercent * 0.6;
+
+                    if (percent < progressoMinimoEsperado && timePercent > 5) {
+                        timeStatusText.innerText = "ALERTA: OBRA ATRASADA";
+                        timeStatusText.className = "text-lg font-black italic tracking-tighter text-red-500 animate-pulse";
+                    } else if (percent >= timePercent) {
+                        timeStatusText.innerText = "EXCELENTE: ADIANTADO";
+                        timeStatusText.className = "text-lg font-black italic tracking-tighter text-green-400";
+                    } else {
+                        timeStatusText.innerText = "PRODUÇÃO NORMAL";
+                        timeStatusText.className = "text-lg font-black italic tracking-tighter text-yellow-500";
+                    }
+                } else {
+                    statusBadge.innerText = "100% CONCLUÍDO";
+                    statusBadge.className = "mt-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-500 text-white shadow-lg shadow-green-500/20";
+                    timeStatusText.innerText = "SERVIÇO FINALIZADO";
+                    timeStatusText.className = "text-lg font-black italic tracking-tighter text-green-400";
+                }
+            }
+
+            saveData();
+        }
+
+        window.onload = () => {
+            initMainChart();
+            renderTasks();
+            loadData();
+            setTimeout(updateCalculations, 100);
+        }
+    </script>
+</body>
+</html>
