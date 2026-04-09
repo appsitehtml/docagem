@@ -196,22 +196,365 @@
         const STORAGE_KEY = 'eletronit_dashboard_data_v1_fixed';
 
         const servicesData = [
-            { id: "meg", title: "Megagem dos motores e geradores", items: ["Abertura da caixa de ligação", "Desligamento dos cabos de força", "Megagem", "Ligação e fechamento", "Teste em funcionamento", "Relatório técnico"] },
-            { id: "vac", title: "Manutenção Driver Vacon / Thruster", items: ["Remoção do Driver", "Desmontagem", "Inspeção", "Limpeza dos coolers", "Teste operacional", "Troca da placa de controle"] },
-            { id: "lem", title: "Motores Maquina Leme (Rolamentos)", items: ["Remoção", "Desmontagem", "Limpeza estator", "Troca rolamento", "Balanceamento", "Revitalização bobina", "Teste em funcionamento"] },
-            { id: "qep", title: "Reaperto QEP", items: ["Bornes e barramentos", "Substituição de componentes"] },
-            { id: "ilu", title: "Iluminação Interna/Externa", items: ["Troca para LED", "Substituição cabos luminárias", "Teste em funcionamento"] },
-            { id: "far", title: "Revisão Farol de Busca", items: ["Revisão holofotes", "Troca peças", "Lubrificação eixo", "Vedação", "Pintura", "Instalação", "Teste"] },
-            { id: "bat", title: "Troca Baterias (Laudo)", items: ["DC Máquina", "DC Passadiço", "Inspeção", "Teste de carga"] },
-            { id: "pan", title: "Reaperto Painel MCA e MCP", items: ["Reaperto bornes", "Reparo cabos arranque", "Aplicação termo retrátil", "Componentes CMM"] },
-            { id: "mas", title: "Amarração Cabos Mastro", items: ["Limpeza antenas", "Abraçadeiras", "Inspeção técnica"] },
-            { id: "com", title: "Teste Intercom", items: ["Limpeza", "Troca cabo acionador", "Corneta polpa", "Corneta convés"] },
-            { id: "arr", title: "Motores de Arranque MCA/MCP", items: ["Remoção", "Bancada", "Revitalização", "Jateamento carcaça", "Teste bancada"] },
-            { id: "ger", title: "Geradores BB, BE e Central", items: ["Remoção", "Troca Rolamento", "Limpeza Eletrosolver", "Revitalização", "Rebobinamento Excitatriz", "Placa de Diodos", "Secagem estufa", "Montagem e Teste"] },
-            { id: "bow", title: "Motor Bow Thruster 1 e 2", items: ["Remoção", "Substituição rolamento", "Eletrosolver", "Teste final"] },
-            { id: "exa", title: "Exaustores Banheiro/Cozinha", items: ["Desmontagem", "Rolamento", "Revitalização", "Teste"] },
-            { id: "mob", title: "Mobilização IA Altave / Internet", items: ["Rack", "Passagem CAT6", "MCT Redondo", "Comissionamento"] }
-        ];
+  {
+    id: "meg",
+    title: "Megagem dos motores e geradores (laudo para classificador)",
+    items: [
+      "Abertura da caixa de ligação",
+      "Desligamento dos cabos de força",
+      "Megagem",
+      "Ligação e fechamento da caixa de ligação",
+      "Teste de funcionamento",
+      "Elaboração de relatório técnico"
+    ]
+  },
+  {
+    id: "drv",
+    title: "Manutenção do Driver Vacon / Thruster FWD e AFT",
+    items: [
+      "Remoção do driver",
+      "Desmontagem",
+      "Inspeção dos componentes",
+      "Limpeza dos coolers",
+      "Teste de funcionamento",
+      "Troca da placa de controle do driver FWD"
+    ]
+  },
+  {
+    id: "lem",
+    title: "Motores da máquina do leme (rolamentos)",
+    items: [
+      "Remoção dos motores",
+      "Desmontagem em oficina",
+      "Limpeza do estator",
+      "Troca de rolamentos",
+      "Balanceamento",
+      "Revitalização da bobina",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "qep",
+    title: "Reaperto QEP",
+    items: [
+      "Reaperto de bornes e barramentos",
+      "Substituição de componentes caso necessário (fornecido pela CMM)"
+    ]
+  },
+  {
+    id: "ilu",
+    title: "Iluminação interna e externa",
+    items: [
+      "Troca de lâmpadas para LED",
+      "Substituição de cabos danificados de todas as luminárias",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "far",
+    title: "Revisão do farol de busca",
+    items: [
+      "Revisão dos holofotes",
+      "Substituição de peças caso necessário (Material não incluso)",
+      "Lubrificação do eixo",
+      "Vedação",
+      "Pintura",
+      "Instalação",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "bat",
+    title: "Troca de baterias com teste (laudo para classificador)",
+    items: [
+      "DC máquina e  DC passadiço",
+      "Inspeção das baterias",
+      "Teste de carga"
+    ]
+  },
+  {
+    id: "pan",
+    title: "Reaperto dos painéis  de partida MCA e MCP",
+    items: [
+      "Reaperto e inspeção dos painéis",
+      "Reparo de cabos dos motores de arranque",
+      "Aplicação de termo retrátil nos cabos da bandeja",
+      "Substituição de componentes caso necessário (fornecido pela CMM)"
+    ]
+  },
+  {
+    id: "mas",
+    title: "Inspeção e amarração de cabos do mastro",
+    items: [
+      "Inspeção e limpeza das antenas",
+      "Amarração de cabos com abraçadeiras",
+      "Substituição de componentes caso necessário (fornecido pela CMM)"
+    ]
+  },
+  {
+    id: "com",
+    title: "Inspeção e teste intercom",
+    items: [
+      "Inspeção e limpeza",
+      "Troca de cabo do acionador do convés",
+      "Troca da corneta de polpa",
+      "Troca da corneta do convés",
+      "Substituição de componentes caso necessário (fornecido pela CMM)"
+    ]
+  },
+  {
+    id: "lum",
+    title: "Inspeção manutenção das luminarias de navegação",
+    items: [
+      "Inspeção e limpeza das antenas",
+      "Amarração de cabos com abraçadeira",
+      "Substituição de componentes caso necessário (fornecido pela CMM)"
+    ]
+  },
+  {
+    id: "arq",
+    title: "Manutenção Motores de arranque MCA",
+    items: [
+      "Remoção dos motores",
+      "Desmontagem em bancada",
+      "Limpeza e revitalização",
+      "Jateamento da carcaça",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "arr",
+    title: "Manutenção Motores de arranque MCP",
+    items: [
+      "Remoção dos motores",
+      "Desmontagem em bancada",
+      "Limpeza e revitalização",
+      "Jateamento da carcaça",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "mrn",
+    title: "Motor Eléritco morinete",
+    items: [
+      "Remoção do motor elétrico",
+      "Desmontagem em bancada",
+      "Substituição de rolamentos",
+      "Rebobinamento",
+      "Revitalização da bobina",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "ger",
+    title: "Geradores BB, BE e Central",
+    items: [
+      "Remoção dos geradores",
+      "Desmontagem em bancada",
+      "Substituição de rolamentos",
+      "Limpeza com eletrosolver",
+      "Revitalização da bobina",
+      "Rebobinamento da excitatriz (Gerador BB e BE)",
+      "Substituição da placa de diodos",
+      "Aquecimento estufa",
+      "Montagem dos geradores",
+      "Manobra dos geradores a bordo",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "bow",
+    title: "Motor elétrico Bow Thruster 1 e 2",
+    items: [
+      "Remoção de bordo",
+      "Desmontagem em bancada",
+      "Substituição de rolamentos",
+      "Limpeza com eletrosolver",
+      "Revitalização de bobina",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "exa",
+    title: "Exaustores (Banheiros, Oficina, Máquina do leme, Bow Thruster e Cozinha)",
+    items: [
+      "Remoção dee bordo",
+      "Desmontagem em bancada",
+      "Substituição de rolamentos",
+      "Limpeza com eletrosolver",
+      "Revitalização de bobina",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "qep2",
+    title: "Ajuste de carga e teste do QEP",
+    items: [
+      "Ajuste de carga dos geradores",
+      "Revisão do QEP",
+      "Teste de sincronismo e carga"
+    ]
+  },
+  {
+    id: "ups",
+    title: "UPS DP, Joystick e Cyscan",
+    items: [
+      "Remoção da UPS de bordo",
+      "Troca das baterias (Fornecido pela CMM)",
+      "Limpeza",
+      "Montagem a bordo",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "bat2",
+    title: "Troca de baterias MCP BB, BE e MCA",
+    items: [
+      "Substituição de baterias",
+      "Troca de conectores",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "fifi",
+    title: "Cabo elétrico FiFi",
+    items: [
+      "Organização do cabo",
+      "Troca do acionador do flap fornecido pela CMM",
+      "Limpeza e reaperto do micro switch",
+      "Teste"
+    ]
+  },
+  {
+    id: "ate",
+    title: "Aterramento do eixo",
+    items: [
+      "Troca de suporte e escova",
+      "Troca da pista de cobre",
+      "Organização do cabo",
+      "Teste"
+    ]
+  },
+  {
+    id: "ref",
+    title: "Refletor do convés",
+    items: [
+      "Substituição de refletores fornecido pela CMM",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "limp",
+    title: "Limpador de para-brisa",
+    items: [
+      "Revisão e teste",
+      "Restabelecimento de ligação",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "agua",
+    title: "Painel do separador de água e óleo",
+    items: [
+      "Reaperto e teste",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "cald",
+    title: "Painel do caldeira",
+    items: [
+      "Revisão do quadro elétrico",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "conn",
+    title: "Revisão do conning maquina",
+    items: [
+      "Organização de cabos",
+      "Teste de alarme",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "pain",
+    title: "Revisão do painel sistema ouro",
+    items: [
+      "Revisão de painel",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "gas",
+    title: "Passagem de cabos e posicionamento dos Sensores de gás",
+    items: [
+      "Revisão de painel",
+      "Teste de funcionamento"
+    ]
+  },
+  {
+    id: "alt",
+    title: "Mobilização sistema Altave IA",
+    items: [
+      "Abertura e fechamento de MCTs",
+      "Instalação de rack",
+      "Passagem de cabos",
+      "Fixação dos cabos",
+      "Fornecimento de cabo CAT06 e abraçadeiras",
+      "Fornecimento de MCT para base redondo",
+      "Comissionamento com técnico da Altave"
+    ]
+  },
+  {
+    id: "rack",
+    title: "Mobilização Rack (Internet, Cameras e TV)",
+    items: [
+      "Abertura e fechamento de MCTs",
+      "Instalação de rack",
+      "Passagem de cabos",
+      "Fixação dos cabos",
+      "Fornecimento de cabo CAT06 e abraçadeiras",
+      "Fornecimento de cabo coaxial",
+      "Fornecimento de terminais",
+      "Comissionamento com técnicos"
+    ]
+  },
+  {
+    id: "miros",
+    title: "Mobilização Miros",
+    items: [
+      "Abertura e fechamento de MCTs",
+      "Passagem de cabos",
+      "Fixação de cabos",
+      "Fornecimento de cabo CAT06 e abraçadeiras",
+      "Fornecimento de terminais",
+      "Suporte Comissionamento com técnicos"
+    ]
+  },
+  {
+    id: "ili",
+    title: "Mobilização Rack Anexo III",
+    items: [
+      "Abertura e fechamentode MCTs",
+      "Passagem de cabo de alimentação independente",
+      "Fixação dos cabos",
+      "Instalação e identificação de disjuntor 16amp",
+      "Fornecimento de terminais",
+      "Suporte Comissionamento com técnico"
+    ]
+  },
+  {
+    id: "test",
+    title: "Prova de mar e testes",
+    items: [
+      "Inspeção da UPS do servidor",
+      "Teste de blackout para classificador",
+      "Termografia",
+      "Teste de alarmes"
+    ]
+  }
+];
 
         let elevationChart;
         let taskCharts = {};
@@ -486,14 +829,14 @@
                     timeStatusText.innerText = "AGUARDANDO INÍCIO";
                     timeStatusText.className = "text-lg font-black italic tracking-tighter text-slate-500";
                 } else if (percent < 100) {
-                    statusBadge.innerText = "EM EXECUÇÃO";
+                    statusBadge.innerText = "INICIADO";
                     statusBadge.className = "mt-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-yellow-400 text-slate-900 shadow-lg shadow-yellow-400/20";
                     
                     const progressoMinimoEsperado = timePercent * 0.6;
 
                     if (percent < progressoMinimoEsperado && timePercent > 5) {
-                        timeStatusText.innerText = "ALERTA: OBRA ATRASADA";
-                        timeStatusText.className = "text-lg font-black italic tracking-tighter text-red-500 animate-pulse";
+                        timeStatusText.innerText = "EM EXECUÇÃO";
+                        timeStatusText.className = "text-lg font-black italic tracking-tighter text-blue-500 animate-pulse";
                     } else if (percent >= timePercent) {
                         timeStatusText.innerText = "EXCELENTE: ADIANTADO";
                         timeStatusText.className = "text-lg font-black italic tracking-tighter text-green-400";
